@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<!-- saved from url=(0037)https://tiger-29428890-19bec.web.app/ -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>搖籤詩｜祈福存錢小遊戲</title>
-  <meta name="description" content="NFC 觸發後玩的搖籤詩小遊戲，結合祈福與儲蓄建議，支援搖一搖與點擊抽籤、離線紀錄與小卡下載。" />
+  <meta name="description" content="NFC 觸發後玩的搖籤詩小遊戲，結合祈福與儲蓄建議，支援搖一搖與點擊抽籤、離線紀錄與小卡下載。">
   <style>
     :root{
       --bg:#fff8f0; --primary:#b51111; --ink:#2b2b2b; --gold:#c9a227; --muted:#946a28; --paper:#fffdfa;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;padding:0;}
+    html,body{height:100%;}
     body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans TC",sans-serif;
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans TC",sans-serif;
       background:radial-gradient(1000px 600px at 50% -10%, #ffe5cf 0%, var(--bg) 50%, var(--bg) 100%);
       color:var(--ink); display:flex; align-items:center; justify-content:center;
     }
@@ -36,7 +36,7 @@
     .lotbox{display:grid; grid-template-columns:1fr; justify-items:center; position:relative;}
     
     /* ===== 籤筒與 logo ===== */
-   .lotbox img {
+    .lotbox img {
     position: absolute;
     left: 50%;
     bottom: 30%; /* 貼在籤筒上方，依比例調整 */
@@ -48,7 +48,7 @@
     }
     @media (max-width: 480px) {
       .lotbox img {
-        bottom: 35%;
+        bottom: 30%;
         width: 34%;
       }
     }
@@ -93,8 +93,8 @@
           <div class="logo" aria-hidden="true">
             <!-- 元寶圖示 -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 12c3-4 6-6 9-6s6 2 9 6c-3 4-6 6-9 6s-6-2-9-6Z" fill="#f4c542" stroke="#a87908"/>
-              <circle cx="12" cy="12" r="2.4" fill="#ffefc2" stroke="#a87908"/>
+              <path d="M3 12c3-4 6-6 9-6s6 2 9 6c-3 4-6 6-9 6s-6-2-9-6Z" fill="#f4c542" stroke="#a87908"></path>
+              <circle cx="12" cy="12" r="2.4" fill="#ffefc2" stroke="#a87908"></circle>
             </svg>
           </div>
           <div>
@@ -102,20 +102,19 @@
             <p class="subtitle">感應存錢筒後，搖一搖抽今日籤，得到專屬的儲蓄建議。</p>
           </div>
         </div>
-        <div class="statusbar" id="statusbar"></div>
+        <div class="statusbar" id="statusbar"><span class="pill good">H5 網頁遊戲</span><span class="pill good">搖一搖偵測可用</span><span class="pill good">震動回饋可用</span><span class="pill ">Web NFC不可用</span></div>
       </header>
 
-      <section class="stage">
+     <section class="stage">
         <div class="lotbox" aria-live="polite">
           <img src="imeage/logo.png" alt="Logo"/>
           <div class="筮桶" aria-hidden="true">
             <div class="sticks" id="sticks"></div>
             <div class="桶"></div>
           </div>
-
           <div class="actions">
             <button class="primary" id="shakeBtn">搖一搖抽籤</button>
-            <button class="ghost" id="saveCardBtn" disabled>下載福氣小卡</button>
+            <button class="ghost" id="saveCardBtn" disabled="">下載福氣小卡</button>
             <button class="ghost" id="resetBtn">再抽一次</button>
           </div>
         </div>
@@ -129,7 +128,7 @@
       </section>
 
       <div class="footer">
-        <div class="kudos">📅 <span id="streak">連續簽到：0 天</span>｜🔢 <span id="count">今日抽籤：0 次</span></div>
+        <div class="kudos">📅 <span id="streak">連續簽到：1 天</span>｜🔢 <span id="count">今日抽籤：0 次</span></div>
         <div>💡 小技巧：若手機不支援搖動偵測，可直接按「搖一搖抽籤」。</div>
       </div>
     </div>
@@ -138,7 +137,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    // === 簽詩內容 ===
+    // === 內容資料：簽詩 ===
     const LOTS = [
       {grade:'大吉', poem:'金風送喜滿筒香，勤儲粒米聚成倉。', advise:'今天很適合把零錢或 50 元硬幣投進存錢筒，讓小福氣變大福氣。'},
       {grade:'中吉', poem:'步步為營穩中進，細流終成大江濱。', advise:'把本週零用的一成存起來，先存小數字也能持續前進。'},
@@ -150,7 +149,8 @@
       {grade:'半吉', poem:'小舟入港風略急，繫牢纜索再啟行。', advise:'檢查這週是否有訂閱沒在用，停掉一個，把省下來的錢存入。'},
     ];
 
-    const el = id => document.getElementById(id);
+    // === 狀態 ===
+    const el = (id)=>document.getElementById(id);
     const sticksWrap = el('sticks');
     const result = el('result');
     const lotTitle = el('lotTitle');
@@ -160,10 +160,13 @@
     const streakEl = el('streak');
     const countEl = el('count');
     const nfcBadge = el('nfcBadge');
-    const STATUS_KEYS = { lastDate:'lot_last_date', streak:'lot_streak', todayCount:'lot_today_count' };
-    let shaking = false, todayCount = 0;
 
-    // 竹籤建立
+    const STATUS_KEYS = { lastDate:'lot_last_date', streak:'lot_streak', todayCount:'lot_today_count' };
+
+    let shaking = false;
+    let todayCount = 0;
+
+    // 建立 21 根竹籤視覺
     const STICK_COUNT = 21;
     function buildSticks(){
       sticksWrap.innerHTML = '';
@@ -177,7 +180,7 @@
       }
     }
 
-    // 簽到與統計
+    // 讀寫本地儲存：簽到與次數
     function loadDaily(){
       const today = new Date();
       const dkey = today.toISOString().slice(0,10);
@@ -186,10 +189,13 @@
       if(last===dkey){
         todayCount = parseInt(localStorage.getItem(STATUS_KEYS.todayCount)||'0',10);
       } else {
+        // 新的一天
         if(last){
           const diff = (today - new Date(last)) / (1000*60*60*24);
-          streak = diff<=1.9 ? (streak+1) : 1;
-        } else streak = 1;
+          streak = diff<=1.9 ? (streak+1) : 1; // 容錯 1 天
+        } else {
+          streak = 1;
+        }
         todayCount = 0;
         localStorage.setItem(STATUS_KEYS.lastDate, dkey);
         localStorage.setItem(STATUS_KEYS.streak, String(streak));
@@ -205,7 +211,7 @@
       countEl.textContent = `今日抽籤：${todayCount} 次`;
     }
 
-    // 抽籤流程
+    // 抽籤主流程
     function shakeOnce(){
       if(shaking) return;
       shaking = true;
@@ -213,7 +219,8 @@
       if('vibrate' in navigator) navigator.vibrate(60);
       setTimeout(()=>{
         sticksWrap.classList.remove('shake');
-        const lot = LOTS[Math.floor(Math.random()*LOTS.length)];
+        const idx = Math.floor(Math.random()*LOTS.length);
+        const lot = LOTS[idx];
         showResult(lot);
         bumpCount();
         shaking = false;
@@ -228,16 +235,140 @@
       el('saveCardBtn').disabled = false;
     }
 
+    // 小卡下載（Canvas 產生）
+    function saveCard(){
+      const w = 800, h = 1000;
+      const cvs = document.createElement('canvas');
+      cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d');
+
+      // 背景
+      const grad = ctx.createLinearGradient(0,0,0,h);
+      grad.addColorStop(0,'#fff6dd');
+      grad.addColorStop(.6,'#ffe6b0');
+      grad.addColorStop(1,'#fbe2a9');
+      ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+
+      // 邊框
+      ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 8; ctx.strokeRect(24,24,w-48,h-48);
+
+      // 標題
+      ctx.fillStyle = '#b51111';
+      ctx.font = 'bold 44px Noto Sans TC, system-ui';
+      ctx.fillText('今日籤詩｜祈福存錢', 60, 100);
+
+      // 內容框
+      ctx.fillStyle = '#ffffffcc';
+      ctx.fillRect(60, 140, w-120, 640);
+
+      ctx.fillStyle = '#a87312';
+      ctx.font = '28px Noto Sans TC, system-ui';
+      ctx.fillText(lotTitle.textContent, 80, 200);
+
+      ctx.fillStyle = '#2b2b2b';
+      ctx.font = '32px Noto Sans TC, system-ui';
+      wrapText(ctx, '「'+poem.textContent+'」', 80, 260, w-160, 44);
+
+      ctx.fillStyle = '#5a4a34';
+      ctx.font = '26px Noto Sans TC, system-ui';
+      wrapText(ctx, advice.textContent, 80, 480, w-160, 36);
+
+      // 底部
+      ctx.fillStyle = '#7b6b54';
+      ctx.font = '20px Noto Sans TC, system-ui';
+      const ds = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'2-digit', day:'2-digit'});
+      ctx.fillText('簽到日期：'+ds, 60, h-80);
+      ctx.fillText('由 NFC 祈福存錢觸發', 60, h-50);
+
+      const url = cvs.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url; a.download = '福氣小卡.png';
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('已下載福氣小卡');
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+      const words = text.split('');
+      let line = '', yy = y;
+      for(const ch of words){
+        const test = line + ch;
+        if(ctx.measureText(test).width > maxWidth){
+          ctx.fillText(line, x, yy); yy += lineHeight; line = ch;
+        } else { line = test; }
+      }
+      if(line) ctx.fillText(line, x, yy);
+    }
+
+    // 設備搖動偵測（可關閉）
+    function setupShake(){
+      let last = 0, threshold = 17; // 門檻值可調
+      function handler(e){
+        const a = e.accelerationIncludingGravity;
+        if(!a) return;
+        const magnitude = Math.abs(a.x) + Math.abs(a.y) + Math.abs(a.z);
+        const now = Date.now();
+        if(magnitude > threshold && (now - last) > 900){
+          last = now; shakeOnce();
+        }
+      }
+      if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
+        // iOS 需互動授權
+        showToast('點一下允許「動作與方向」以啟用搖一搖');
+        document.body.addEventListener('click', async ()=>{
+          try{ const res = await DeviceMotionEvent.requestPermission(); if(res==='granted'){ window.addEventListener('devicemotion', handler); showToast('已啟用搖一搖'); } }catch{}
+        }, {once:true});
+      } else if(typeof DeviceMotionEvent !== 'undefined'){
+        window.addEventListener('devicemotion', handler);
+      }
+    }
+
+    // NFC 標記（URL 夾帶 ?nfc=1 或 Web NFC 嘗試）
+    function setupNFC(){
+      const params = new URLSearchParams(location.search);
+      if(params.get('nfc')==='1'){ nfcBadge.style.display='inline-block'; return; }
+      if('NDEFReader' in window){
+        // 嘗試讀取一次（需要 HTTPS 與使用者手勢觸發）
+        const btn = document.getElementById('shakeBtn');
+        btn.addEventListener('click', async ()=>{
+          try{
+            const reader = new NDEFReader();
+            await reader.scan();
+            reader.onreading = (event)=>{ nfcBadge.style.display='inline-block'; showToast('NFC 感應成功'); };
+          }catch(err){ /* 可能被拒絕或不支援 */ }
+        }, {once:true});
+      }
+    }
+
+    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1600); }
+
     // 事件綁定
-    el('shakeBtn').addEventListener('click', shakeOnce);
-    el('resetBtn').addEventListener('click', ()=>{ buildSticks(); result.style.display='none'; el('saveCardBtn').disabled=true; showToast('已重置，準備再抽一次'); });
-    el('saveCardBtn').addEventListener('click', ()=>showToast('小卡下載功能略'));
+    document.getElementById('shakeBtn').addEventListener('click', shakeOnce);
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      buildSticks(); result.style.display='none'; el('saveCardBtn').disabled = true; showToast('已重置，準備再抽一次');
+    });
+    document.getElementById('saveCardBtn').addEventListener('click', saveCard);
 
-    function showToast(msg){ toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1600); }
+    // 狀態列：顯示裝置能力
+    function setupStatusbar(){
+      const bar = document.getElementById('statusbar');
+      const caps = [];
+      const cap = (t,good=false)=>`<span class="pill ${good?'good':''}">${t}</span>`;
+      caps.push(cap('H5 網頁遊戲', true));
+      caps.push(cap('搖一搖偵測'+(typeof DeviceMotionEvent!=='undefined'?'可用':'不可用'), typeof DeviceMotionEvent!=='undefined'));
+      caps.push(cap('震動回饋'+('vibrate' in navigator?'可用':'不可用'), ('vibrate' in navigator)));
+      caps.push(cap('Web NFC'+('NDEFReader' in window?'可用(實驗性)':'不可用'), ('NDEFReader' in window)));
+      bar.innerHTML = caps.join('');
+    }
 
-    (function init(){ buildSticks(); loadDaily(); })();
+    // 啟動
+    (function init(){
+      buildSticks();
+      loadDaily();
+      setupShake();
+      setupNFC();
+      setupStatusbar();
+    })();
   </script>
-</body>
-</html>
 
 
+</body></html>
