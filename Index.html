@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>搖籤詩｜祈福存錢小遊戲</title>
+  <meta name="description" content="NFC 觸發後玩的搖籤詩小遊戲，結合祈福與儲蓄建議，支援搖一搖與點擊抽籤、離線紀錄與小卡下載。" />
+  <style>
+    :root{
+      --bg:#fff8f0; --primary:#b51111; --ink:#2b2b2b; --gold:#c9a227; --muted:#946a28; --paper:#fffdfa;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;padding:0;}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans TC",sans-serif;
+      background:radial-gradient(1000px 600px at 50% -10%, #ffe5cf 0%, var(--bg) 50%, var(--bg) 100%);
+      color:var(--ink); display:flex; align-items:center; justify-content:center;
+    }
+    .app{width:min(740px, 100%); padding:16px;}
+    .card{background:var(--paper); border:2px solid #e9d8b4; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08);
+      overflow:hidden;}
+    header{padding:20px 18px; background:linear-gradient(180deg, #fff7ec, #fff1da);
+      border-bottom:2px solid #f0dfb6; position:relative}
+    .title{display:flex; align-items:center; gap:12px}
+    .logo{width:0px; height:0px;display:grid; place-items:center; position: relative; display: flex; align-items: center;
+      box-shadow:inset 0 0 0 2px #f3d9a8}
+    .logo svg{width:28px; height:28px;}
+    h1{margin:0; font-size:20px; color:var(--primary); letter-spacing:.08em}
+    .subtitle{margin:2px 0 0; font-size:12px; color:#7a6a55}
+
+    .statusbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .pill{font-size:12px; border:1px dashed #ddb87a; padding:6px 10px; border-radius:999px; background:#fff9ee; color:#7c6123}
+    .pill.good{border-style:solid; border-color:#c8a24a}
+
+    .stage{padding:22px 18px 10px;}
+    .lotbox{display:grid; grid-template-columns:1fr; justify-items:center; position:relative;}
+    
+    /* ===== 籤筒與 logo ===== */
+    .lotbox img {
+    position: absolute;
+    left: 50%;
+    bottom: 25%; /* 貼在籤筒上方，依比例調整 */
+    transform: translateX(-50%);
+    width: 18%;
+    height: auto;
+    z-index: 10;
+    background-image: url(imeage/logo.png);
+    }
+    @media (max-width: 600px) {
+      .lotbox img {
+        bottom: 74%;
+        width: 34%;
+      }
+    }
+
+    .筮桶{position:relative; width:min(340px, 86vw); height:220px; margin:6px 0 14px;}
+    .桶{position:absolute; inset:auto 0 0; margin:auto; width:100%; height:70%; background:linear-gradient(180deg, #b20 0%, #790 0%, #8a0 0%);}
+    .桶:before{content:""; position:absolute; inset:0; background:linear-gradient(180deg, #b31111 0%, #8f0f0f 60%, #740b0b 100%);
+      border-radius:18px 18px 14px 14px; box-shadow:inset 0 10px 18px rgba(0,0,0,.25), inset 0 -10px 18px rgba(0,0,0,.2);}    
+    .桶:after{content:""; position:absolute; left:8%; right:8%; top:14px; height:8px; border-radius:999px; background:linear-gradient(180deg,#caa65a,#9f7b20); box-shadow:0 2px 0 rgba(0,0,0,.1)}
+
+    .sticks{position:absolute; left:50%; bottom:60%; transform:translateX(-50%); width:80%; height:160px; display:flex; align-items:flex-end; justify-content:center; gap:6px; perspective:800px}
+    .stick{width:16px; height:120px; background:linear-gradient(180deg, #d3b37a, #b68c43); border-radius:6px; box-shadow:inset 0 0 0 1px #b38a3a, 0 6px 12px rgba(0,0,0,.12); transform-origin:50% 100%;}
+    .stick i{display:block; margin:8px auto 0; width:70%; height:14px; background:#8a5f15; border-radius:3px; opacity:.75}
+
+    .shake{animation:sha 0.5s ease-in-out 0s 1}
+    @keyframes sha{0%{transform:translateX(-50%) rotate(-2deg)}25%{transform:translateX(-50%) rotate(2deg)}50%{transform:translateX(-50%) rotate(-3deg)}75%{transform:translateX(-50%) rotate(3deg)}100%{transform:translateX(-50%) rotate(0)}}
+
+    .actions{display:flex; align-items:center; justify-content:center; gap:10px; margin:8px 0 2px; flex-wrap:wrap}
+    button{appearance:none; border:none; background:linear-gradient(180deg, #f9e2a7, #e6c66e); color:#684b06; padding:12px 16px; border-radius:12px; font-weight:700; letter-spacing:.08em; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,.12);}
+    button.primary{background:linear-gradient(180deg, #fbe3a9, #f0c862); border:1px solid #e1b34c}
+    button.ghost{background:#fff7ea; border:1px dashed #e0c28c}
+    button:disabled{opacity:.6; cursor:not-allowed}
+
+    .result{margin:14px auto 0; width:min(560px, 94%); background:#fffdf8; border:1px solid #edd6a6; border-radius:16px; padding:14px 14px 10px; display:none}
+    .badge{display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#fff0c6; border:1px solid #efc972; color:#865a0b}
+    .lot-title{margin:6px 0 0; font-size:18px; color:var(--primary)}
+    .poem{margin:8px 0; padding:10px 12px; background:#fffaf0; border-left:3px solid #dfb050; line-height:1.6; border-radius:8px}
+    .advice{margin:0; color:#5a4a34}
+
+    .footer{padding:12px 18px 18px; color:#7b6b54; font-size:12px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .kudos{display:flex; align-items:center; gap:6px}
+
+    .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#2b2b2b; color:#fff; padding:10px 14px; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .25s}
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card" role="main" aria-label="搖籤詩小遊戲">
+      <header>
+        <div class="title">
+          <div class="logo" aria-hidden="true">
+            <!-- 元寶圖示 -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12c3-4 6-6 9-6s6 2 9 6c-3 4-6 6-9 6s-6-2-9-6Z" fill="#f4c542" stroke="#a87908"/>
+              <circle cx="12" cy="12" r="2.4" fill="#ffefc2" stroke="#a87908"/>
+            </svg>
+          </div>
+          <div>
+            <h1>搖籤詩｜祈福存錢</h1>
+            <p class="subtitle">感應存錢筒後，搖一搖抽今日籤，得到專屬的儲蓄建議。</p>
+          </div>
+        </div>
+        <div class="statusbar" id="statusbar"></div>
+      </header>
+
+      <section class="stage">
+        <div class="lotbox" aria-live="polite">
+          <img src="logo.png" alt="Logo"/>
+          <div class="筮桶" aria-hidden="true">
+            <div class="sticks" id="sticks"></div>
+            <div class="桶"></div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="shakeBtn">搖一搖抽籤</button>
+            <button class="ghost" id="saveCardBtn" disabled>下載福氣小卡</button>
+            <button class="ghost" id="resetBtn">再抽一次</button>
+          </div>
+        </div>
+
+        <article class="result" id="result">
+          <span class="badge" id="nfcBadge" style="display:none">NFC 已感應</span>
+          <h2 class="lot-title" id="lotTitle">—</h2>
+          <div class="poem" id="poem">—</div>
+          <p class="advice" id="advice">—</p>
+        </article>
+      </section>
+
+      <div class="footer">
+        <div class="kudos">📅 <span id="streak">連續簽到：0 天</span>｜🔢 <span id="count">今日抽籤：0 次</span></div>
+        <div>💡 小技巧：若手機不支援搖動偵測，可直接按「搖一搖抽籤」。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // === 簽詩內容 ===
+    const LOTS = [
+      {grade:'大吉', poem:'金風送喜滿筒香，勤儲粒米聚成倉。', advise:'今天很適合把零錢或 50 元硬幣投進存錢筒，讓小福氣變大福氣。'},
+      {grade:'中吉', poem:'步步為營穩中進，細流終成大江濱。', advise:'把本週零用的一成存起來，先存小數字也能持續前進。'},
+      {grade:'小吉', poem:'拈香一柱心不偏，滴水雖微能穿岩。', advise:'設一個 7 日微目標：每天存 20 元，完成就幫自己貼一張福貼。'},
+      {grade:'平', poem:'雲開半面見青天，持之有恆福自連。', advise:'把「固定轉入」打開，每週固定轉 100 元進存款，不用想也能存。'},
+      {grade:'小凶', poem:'風急竹鳴心易亂，收斂欲念保平安。', advise:'今天暫緩衝動購物，把想買的東西加入 72 小時清單，再決定要不要。'},
+      {grade:'中平', poem:'一燈在手照歧路，審思方寸免顛簸。', advise:'記一筆今日花費，寫下「必要 / 想要」兩列，明天回看會更清楚。'},
+      {grade:'吉', poem:'福至心靈財路通，積沙聚塔好時中。', advise:'把零用找零都放進存錢筒；若有轉帳就取整數把尾數存起來。'},
+      {grade:'半吉', poem:'小舟入港風略急，繫牢纜索再啟行。', advise:'檢查這週是否有訂閱沒在用，停掉一個，把省下來的錢存入。'},
+    ];
+
+    const el = id => document.getElementById(id);
+    const sticksWrap = el('sticks');
+    const result = el('result');
+    const lotTitle = el('lotTitle');
+    const poem = el('poem');
+    const advice = el('advice');
+    const toast = el('toast');
+    const streakEl = el('streak');
+    const countEl = el('count');
+    const nfcBadge = el('nfcBadge');
+    const STATUS_KEYS = { lastDate:'lot_last_date', streak:'lot_streak', todayCount:'lot_today_count' };
+    let shaking = false, todayCount = 0;
+
+    // 竹籤建立
+    const STICK_COUNT = 21;
+    function buildSticks(){
+      sticksWrap.innerHTML = '';
+      for(let i=0;i<STICK_COUNT;i++){
+        const s = document.createElement('div');
+        s.className = 'stick swing';
+        s.style.height = (100 + Math.random()*30) + 'px';
+        s.style.transform = `rotate(${(Math.random()*8-4)}deg)`;
+        s.innerHTML = '<i></i>'
+        sticksWrap.appendChild(s);
+      }
+    }
+
+    // 簽到與統計
+    function loadDaily(){
+      const today = new Date();
+      const dkey = today.toISOString().slice(0,10);
+      const last = localStorage.getItem(STATUS_KEYS.lastDate);
+      let streak = parseInt(localStorage.getItem(STATUS_KEYS.streak)||'0',10);
+      if(last===dkey){
+        todayCount = parseInt(localStorage.getItem(STATUS_KEYS.todayCount)||'0',10);
+      } else {
+        if(last){
+          const diff = (today - new Date(last)) / (1000*60*60*24);
+          streak = diff<=1.9 ? (streak+1) : 1;
+        } else streak = 1;
+        todayCount = 0;
+        localStorage.setItem(STATUS_KEYS.lastDate, dkey);
+        localStorage.setItem(STATUS_KEYS.streak, String(streak));
+        localStorage.setItem(STATUS_KEYS.todayCount, '0');
+      }
+      streakEl.textContent = `連續簽到：${streak} 天`;
+      countEl.textContent = `今日抽籤：${todayCount} 次`;
+    }
+
+    function bumpCount(){
+      todayCount += 1;
+      localStorage.setItem(STATUS_KEYS.todayCount, String(todayCount));
+      countEl.textContent = `今日抽籤：${todayCount} 次`;
+    }
+
+    // 抽籤流程
+    function shakeOnce(){
+      if(shaking) return;
+      shaking = true;
+      sticksWrap.classList.add('shake');
+      if('vibrate' in navigator) navigator.vibrate(60);
+      setTimeout(()=>{
+        sticksWrap.classList.remove('shake');
+        const lot = LOTS[Math.floor(Math.random()*LOTS.length)];
+        showResult(lot);
+        bumpCount();
+        shaking = false;
+      }, 600);
+    }
+
+    function showResult(lot){
+      result.style.display = 'block';
+      lotTitle.textContent = `${lot.grade}籤 ． 第${Math.floor(Math.random()*100)+1}號`;
+      poem.textContent = lot.poem;
+      advice.textContent = '💰 儲蓄建議：' + lot.advise;
+      el('saveCardBtn').disabled = false;
+    }
+
+    // 事件綁定
+    el('shakeBtn').addEventListener('click', shakeOnce);
+    el('resetBtn').addEventListener('click', ()=>{ buildSticks(); result.style.display='none'; el('saveCardBtn').disabled=true; showToast('已重置，準備再抽一次'); });
+    el('saveCardBtn').addEventListener('click', ()=>showToast('小卡下載功能略'));
+
+    function showToast(msg){ toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1600); }
+
+    (function init(){ buildSticks(); loadDaily(); })();
+  </script>
+</body>
+</html>
